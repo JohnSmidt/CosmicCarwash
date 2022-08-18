@@ -1,0 +1,12 @@
+body {
+    background:rgb(43, 43, 43);
+}
+canvas {
+    border: 2px solid rgb(240, 167, 50);
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-top: 50px;
+    margin-right: auto;
+    display: block;
+}
