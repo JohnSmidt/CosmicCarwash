@@ -2,6 +2,7 @@ class Container {
     constructor() {
         this.pos = { x: 0, y: 0 };
         this.children = [];
+        console.log("Container Created!")
     }
 
     // Container methods

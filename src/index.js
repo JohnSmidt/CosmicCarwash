@@ -1,13 +1,18 @@
 let dt = 0;
 let last = 0;
-let canvas;
-let ctx;
-
-window.addEventListener('load', (event) => {
-    canvas = document.getElementById("game")
-    ctx = canvas.getContext("2d");
-    awake();
+const width = 1300;
+const height = 700;
+const renderer = new CanvasRenderer(1300, 700);
+const titleScreen = new Container();
+const message = new Text("Cosmic Carwash", width / 2, height / 2,{
+    font: "40pt monospace",
+    fill: "yellow",
+    align: "center"
 });
+
+titleScreen.add(message);
+
+
 
 function loadTitle()
 {
@@ -47,16 +52,7 @@ function loadWin()
 function awake()
 {
     // First time setup
-    const scene = new Container();
-    const message = new Text("The Renderer!", {
-        font: "40pt monospace",
-        fill: "blue",
-        align: "center"
-    });
-    message.pos.x = w / 2;
-    message.pos.y = h / 2;
 
-    scene.add(message);
 }
 
 function update(ms)
@@ -68,6 +64,8 @@ function update(ms)
     last = t;
 
     // Add game logic here
+    titleScreen.update();
+    renderer.render(titleScreen);
 
 }
 requestAnimationFrame(update);
