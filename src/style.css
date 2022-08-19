@@ -10,3 +10,7 @@ canvas {
     margin-right: auto;
     display: block;
 }
+
+@font-face {
+    font-family: 'Quantico', sans-serif;
+}

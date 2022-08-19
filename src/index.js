@@ -5,12 +5,22 @@ const height = 700;
 const renderer = new CanvasRenderer(1300, 700);
 const titleScreen = new Container();
 const message = new Text("Cosmic Carwash", width / 2, height / 2,{
-    font: "40pt monospace",
-    fill: "yellow",
+    font: "70pt Quantico",
+    stroke: 'white',
+    lineWidth: 3,
+    fill: "rgb(240, 167, 50)",
     align: "center"
 });
 
+const box = new Button(
+    50,
+    20,
+    100,
+    200,
+    "Start Game");
+
 titleScreen.add(message);
+titleScreen.add(box);
 
 
 

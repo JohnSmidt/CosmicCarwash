@@ -3,12 +3,12 @@ class Text {
         this.pos = { x: x, y: y };
         this.text = text;
         this.style = style;
-        console.log('Text Object Created!');
+        //console.log('Text Object Created!');
     }
 
     update()
     {
         //console.log("Im being updated!")
-        this.pos.x += 70 * dt;
+        //this.pos.x += 70 * dt;
     }
 }

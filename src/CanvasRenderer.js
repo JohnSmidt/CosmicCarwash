@@ -15,15 +15,22 @@ class CanvasRenderer {
             container.children.forEach(child => {
                 ctx.save();
                 // Draw the leaf node
+                console.log(child);
                 if (child.pos) {
                     ctx.translate(Math.round(child.pos.x), Math.round(child.pos.y));
                 }
                 if (child.text) {
-                    const { font, fill, align } = child.style;
+                    const { font, fill, stroke, align, lineWidth } = child.style;
                     if (font) ctx.font = font;
                     if (fill) ctx.fillStyle = fill;
+                    if (stroke) ctx.strokeStyle = stroke;
+                    if (lineWidth) ctx.lineWidth = lineWidth;
                     if (align) ctx.textAlign = align;
-                    ctx.fillText(child.text, 0, 0);
+                    if (fill) ctx.fillText(child.text, 0, 0);
+                    if (stroke) ctx.strokeText(child.text, 0, 0);
+                }
+                if (child.button) {
+
                 }
                 // Handle the child types
                 if (child.children) {
