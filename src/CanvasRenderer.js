@@ -5,6 +5,8 @@ class CanvasRenderer {
         this.h = canvas.height = h;
         this.view = canvas;
         this.ctx = canvas.getContext("2d");
+        this.ctx.fillStyle = "rgb(240, 167, 50)";
+        this.ctx.strokeStyle = "rgb(240, 167, 50)"
         console.log("Renderer Created!")
     }
 
@@ -15,23 +17,34 @@ class CanvasRenderer {
             container.children.forEach(child => {
                 ctx.save();
                 // Draw the leaf node
-                console.log(child);
                 if (child.pos) {
                     ctx.translate(Math.round(child.pos.x), Math.round(child.pos.y));
                 }
-                if (child.text) {
-                    const { font, fill, stroke, align, lineWidth } = child.style;
-                    if (font) ctx.font = font;
-                    if (fill) ctx.fillStyle = fill;
-                    if (stroke) ctx.strokeStyle = stroke;
-                    if (lineWidth) ctx.lineWidth = lineWidth;
-                    if (align) ctx.textAlign = align;
-                    if (fill) ctx.fillText(child.text, 0, 0);
-                    if (stroke) ctx.strokeText(child.text, 0, 0);
-                }
-                if (child.button) {
 
+                // Build based on which object it is
+                switch(child.getClassName())
+                {
+                    case "Text":
+                        const { font, fill, align, lineWidth, textBaseline } = child.style;
+                        if (font) ctx.font = font;
+                        if (fill) ctx.fillStyle = fill;
+                        if (lineWidth) ctx.lineWidth = lineWidth;
+                        if (align) ctx.textAlign = align;
+                        if (textBaseline) ctx.textBaseline = textBaseline;
+                        if (fill) ctx.fillText(child.text, 0, 0);
+                    break;
+                    case "Button":
+                        if(!child.disabled)
+                            ctx.fillRect(child.pos.x, child.pos.y, child.width,  child.height);
+                        else
+                            ctx.strokeRect(child.pos.x, child.pos.y, child.width,  child.height)
+                    break;
+                    case "UIBox":
+                        ctx.strokeRect(child.pos.x, child.pos.y, child.width,  child.height)
+                        ctx.strokeRect(child.pos.x -5, child.pos.y-5, child.width + 10, child.height +10)
+                    break;
                 }
+
                 // Handle the child types
                 if (child.children) {
                     renderRec(child);
