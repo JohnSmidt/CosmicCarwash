@@ -33,15 +33,8 @@ class CanvasRenderer {
                         if (textBaseline) ctx.textBaseline = textBaseline;
                         if (fill) ctx.fillText(child.text, 0, 0);
                     break;
-                    case "Button":
-                        if(!child.disabled)
-                            ctx.fillRect(child.pos.x, child.pos.y, child.width,  child.height);
-                        else
-                            ctx.strokeRect(child.pos.x, child.pos.y, child.width,  child.height)
-                    break;
-                    case "UIBox":
-                        ctx.strokeRect(child.pos.x, child.pos.y, child.width,  child.height)
-                        ctx.strokeRect(child.pos.x -5, child.pos.y-5, child.width + 10, child.height +10)
+                    default:
+                        child.render(ctx);
                     break;
                 }
 

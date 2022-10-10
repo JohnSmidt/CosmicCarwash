@@ -5,6 +5,8 @@ class Container {
         console.log("Container Created!")
     }
 
+    get() {return this.children}
+
     // Container methods
     add (child) {
         this.children.push(child);
@@ -14,6 +16,10 @@ class Container {
     remove (child) {
         this.children = this.children.filter(c => c !== child);
         return child;
+    }
+
+    removeAll() {
+        this.children = [];
     }
 
     update (dt, t) {
