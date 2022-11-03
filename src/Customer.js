@@ -3,7 +3,7 @@
  * Should be able to be completely randomized, randomized with bias,
  * and manually made
  **************************/
-class Customer
+class Customer extends GameObject
 {
     // List
     customerName;
@@ -29,6 +29,7 @@ class Customer
 
     constructor()
     {
+        super();
         this.customerName = this.randomName();
         this.planetOfBirth = this.randomPlanet()
         this.vehicleColor = this.randomColor();
@@ -37,7 +38,7 @@ class Customer
         this.age = this.randomNumber(20, 130);
         this.weight = this.randomNumber(75, 250);
         this.customerHeight = this.randomNumber(121, 244);
-        this.vehicleWeight = this.randomNumber(1000, 3000);
+        this.vehicleWeight = this.randomNumber(1000, 100000);
 
         this.hasBeard = this.randomBool(65);
         this.hasSunglasses = this.randomBool(25);
@@ -46,6 +47,10 @@ class Customer
         this.driversLicense = this.randomString(12);
         this.vin = this.randomString(10);
         this.vehicleLicensePlate = this.randomString(10);
+
+        this.head = new Alien(this);
+        this.children = [this.head];
+        console.log(this)
     }
 
     randomNumber(min, max)
@@ -72,9 +77,8 @@ class Customer
             "Kamtram", "Guvy", "Snarth",
             "Thader", "Ringo", "Drax",
             "Bo", "Agador", "J'Duun",
-            "Leela", "Zerg", "Koob",
-            "Zax", "Kreebo", "Fenix",
-            "Zuckerberg"
+            "Koob",
+            "Zax", "Kreebo", "Fenix"
         ]
         return this.randomFromList(names);
     }
@@ -87,13 +91,13 @@ class Customer
 
     randomColor()
     {
-        var colors = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Beige", "White", "Black", "Lime Green", "Salmon", "#FF0000", "#00FF00", "#0000FF", "Chartreuse", "Mauve", "Vermilion", "Brown", "Celadon"]
+        var colors = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Beige", "Grey", "White", "Black", "Lime", "Salmon", "Coral", "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF", "#FFFFFF", "#C0C0C0", "#404040", "Chartreuse", "Mauve", "Vermilion", "Brown", "Celadon", "Cerulean"]
         return this.randomFromList(colors);
     }
 
     randomVehicleType()
     {
-        var vehicleTypes = ["Placeholder", "Placeholder"];
+        var vehicleTypes = ["YT-1300", "TIE", "X-Wing", "Halcyon", "Autumn", "AV22", "Nyx", "Minerva", "Heimdall", "Arwing", "Ishimura", "Sullaco", "Banshee", "Javelin", "Marathon" ];
         return this.randomFromList(vehicleTypes);
     }
 
@@ -112,5 +116,9 @@ class Customer
                 charactersLength));
         }
         return result;
+    }
+
+    render(ctx) {
+
     }
 }

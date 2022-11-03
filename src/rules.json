@@ -1,0 +1,17 @@
+[
+  {
+    "high": {
+      "lane": "l",
+      "read": "All customers with a red, green, or blue car MUST go in the left lane. NO EXCEPTIONS.",
+      "logic": "customer.vehicleColor=='Red'||customer.vehicleColor=='Green'||customer.vehicleColor=='Blue'||customer.vehicleColor=='#FF0000'||customer.vehicleColor=='#00FF00'||customer.vehicleColor=='#0000FF'"
+    },
+    "medium": {
+      "lane": "r",
+      "read": "Any customer vehicles over 50,000 KG in weight will go in the right lane.",
+      "logic": "customer.vehicleWeight>50000"
+    },
+    "low": {
+      "lane": "m"
+    }
+  }
+]
