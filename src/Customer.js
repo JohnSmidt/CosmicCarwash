@@ -6,19 +6,19 @@
 class Customer extends GameObject
 {
     // List
-    customerName;
-    planetOfBirth;
+    customerName; //
+    planetOfBirth; //
     vehicleColor;
     vehicleType;
 
     // Number
-    age;
-    weight;
-    customerHeight;
+    age;          //
+    weight;       //
+    customerHeight; //
     vehicleWeight;
 
     // String
-    driversLicense;
+    driversLicense;  //
     vin;
     vehicleLicensePlate;
 
@@ -50,6 +50,7 @@ class Customer extends GameObject
 
         this.head = new Alien(this);
         this.children = [this.head];
+        this.pos = {x:0,y:0}
         console.log(this)
     }
 
@@ -116,6 +117,16 @@ class Customer extends GameObject
                 charactersLength));
         }
         return result;
+    }
+
+    showHead()
+    {
+        this.children = [this.head]
+    }
+
+    removeHead()
+    {
+        this.children = []
     }
 
     render(ctx) {

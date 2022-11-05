@@ -43,6 +43,10 @@ class Button extends GameObject {
         this.disabled ? this.disabled = false : this.disabled = true;
     }
 
+    setLabel(newLabel) {
+        this.text.text = newLabel;
+    }
+
     render(ctx) {
         if(!this.disabled)
         {

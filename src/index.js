@@ -1,6 +1,9 @@
 let dt = 0;
 let last = 0;
 let days = 0;
+let totalMoney = 0;
+let shutterOpen = false;
+let laneChoice = 'r';
 const width = 1300;
 const height = 700;
 const renderer = new CanvasRenderer(1300, 700);
@@ -10,8 +13,8 @@ const mouse = new MouseControls(container);
 var logic = new LogicParser(rules);
 var customer = new Customer();
 //var alien = new Alien();
-//gameScreen();
-title();
+gameScreen();
+//title();
 //transition();
 
 // TODO Gotta figure out a better way to do this
@@ -26,7 +29,7 @@ window.onload= function() {
             if((x >= child.pos.x && y >= child.pos.y) &&
                 (x <= child.pos.x + child.width / 2 && y <= child.pos.y + child.height / 2))
             {
-                if(child.action)
+                if(child.action && !child.disabled)
                 {
                     child.action();
                 }
@@ -138,12 +141,41 @@ function gameScreen()
     //    0
     // );
 
+    var timerBox = new UIBox(
+        "timerBox",
+        285,
+        100,
+        10,
+        10
+    )
+
+    container.add(timerBox);
+
+    var timerLabel = new Text(
+        "Time Of Day", 150, 40,{
+            font: "15pt Quantico",
+            fill: "rgb(240, 167, 50)",
+            align: "center"
+        }
+    )
+
+    timerBox.add(timerLabel);
+
+    var overallBox = new UIBox(
+        "overallBox",
+        285,
+        220,
+        10,
+        75
+    )
+    container.add(overallBox);
+
     var rightLaneButton = new Button(
         "rightLaneButton",
         75,
         75,
         115,
-        (height / 2) - 45,
+        (height / 2) - 95,
         '\uf061',
         true,
         {
@@ -159,7 +191,7 @@ function gameScreen()
         75,
         75,
         10,
-        (height / 2) - 45,
+        (height / 2) - 95,
         '\u25C2',
         true
     )
@@ -168,13 +200,34 @@ function gameScreen()
         "middleLaneButton",
         75,
         75,
-        60,
-        (height / 2) - (95),
+        63,
+        (height / 2) - (145),
         '\u25B2',
         true
     )
 
+    var confirmButton = new Button(
+        "confirmButton",
+        285,
+        75,
+        10,
+        (height / 2) - 45,
+        "Confirm",
+        true
+    )
+
     rightLaneButton.action = function() {
+        rightLaneButton.removeAll();
+        rightSelectionSquare = new Square(
+            rightLaneButton.width + 12,
+            rightLaneButton.height + 12,
+           54.5,124.5,
+            240,167,50,
+            true
+            )
+        laneChoice = 'r'
+        confirmButton.disabled = false;
+        rightLaneButton.add(rightSelectionSquare)
         var dialogue = new DialogueBox(
             logic.checkCustomer(customer, 0, "r")?"Correct!!!":"Incorrect...",
             500,
@@ -182,7 +235,7 @@ function gameScreen()
             width / 4,
             height / 4
         );
-        next()
+        next(LPR, VIN, color, vehicleWeight, type)
     }
 
     middleLaneButton.action = function() {
@@ -193,7 +246,7 @@ function gameScreen()
             width / 4,
             height / 4
         );
-        next()
+        next(LPR, VIN, color, vehicleWeight, type)
     }
 
     leftLaneButton.action = function() {
@@ -204,12 +257,13 @@ function gameScreen()
             width / 4,
             height / 4
         );
-        next()
+        next(LPR, VIN, color, vehicleWeight, type)
     }
 
     container.add(rightLaneButton);
     container.add(leftLaneButton);
-    container.add(middleLaneButton)
+    container.add(middleLaneButton);
+    container.add(confirmButton);
 
     var scannerMonitor = new UIBox(
         "scannerMonitor",
@@ -219,36 +273,43 @@ function gameScreen()
        10
     );
 
-    var LPR = new Text("LPR: <null>", 185, 50,{
+    var scannerMonitorTitle = new Text("Vehicle Information", 320, 40,{
+        font: "15pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "center"
+    });
+
+    var LPR = new Text("LPR: <NULL>", 185, 80,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
     });
 
-    var VIN = new Text("VIN: <null>", 185, 110,{
+    var VIN = new Text("VIN: <NULL>", 185, 140,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
     });
 
-    var color = new Text("Color: <null>", 185, 170,{
+    var color = new Text("Color: <NULL>", 185, 200,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
     });
 
-    var vehicleWeight = new Text("Vehicle Weight: <null>", 185, 230,{
+    var vehicleWeight = new Text("Vehicle Weight: <NULL>", 185, 260,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
     });
 
-    var type = new Text("Vehicle Type: <null>", 185, 290,{
+    var type = new Text("Vehicle Type: <NULL>", 185, 320,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
     });
 
+    scannerMonitor.add(scannerMonitorTitle)
     scannerMonitor.add(LPR);
     scannerMonitor.add(VIN);
     scannerMonitor.add(color);
@@ -262,15 +323,15 @@ function gameScreen()
         175,
         (scannerMonitor.height / 2) + 20,
         "Scan Vehicle",
-        false,
+        true,
 
     );
 
     var openCustomerDisplayButton = new Button(
         "openCustomerDisplayButton",
-        200,
+        295,
         50,
-        335,
+        (width / 4) + 10,
         (scannerMonitor.height / 2) + 20,
         "Open",
         false,
@@ -278,9 +339,9 @@ function gameScreen()
 
     var closeCustomerDisplayButton = new Button(
         "closeCustomerDisplayButton",
-        200,
+        295,
         50,
-        485,
+        490,
         (scannerMonitor.height / 2) + 20,
         "Close",
         true,
@@ -323,35 +384,101 @@ function gameScreen()
     container.add(carInfo);
 
     scannerButton.action = function() {
-        scan(LPR, VIN, color, vehicleWeight, type);
+        scan(scannerButton, LPR, VIN, color, vehicleWeight, type);
+    }
+
+    openCustomerDisplayButton.action = function() {
+        shutterOpen = true;
+        openCustomerDisplayButton.disabled = true;
+        closeCustomerDisplayButton.disabled = false;
+        rightLaneButton.disabled = false;
+        leftLaneButton.disabled = false;
+        middleLaneButton.disabled = false;
+        scannerButton.disabled = false;
+    }
+
+    closeCustomerDisplayButton.action = function() {
+        shutterOpen = false;
+        openCustomerDisplayButton.disabled = false;
+        closeCustomerDisplayButton.disabled = true;
+        rightLaneButton.disabled = true;
+        leftLaneButton.disabled = true;
+        middleLaneButton.disabled = true;
+        scannerButton.disabled = true;
     }
 }
 
-function scan(LPR, VIN, color, vehicleWeight, type) {
+function scan(scannerButton, LPR, VIN, color, vehicleWeight, type) {
+    LPR.text = "LPR: Scanning...";
+    VIN.text = "VIN: Scanning..";
+    color.text = "Color: Scanning...";
+    vehicleWeight.text = "Vehicle Weight: Scanning...";
+    type.text = "Vehicle Type: Scanning...";
+    scannerButton.disabled = true;
+    scannerButton.setLabel("Scanning...");
+    let aniTime = 0;
+    let loadingSquare = new Square(
+        1,
+        scannerButton.height,
+        scannerButton.pos.x,
+        scannerButton.pos.y,
+        240,
+        167,
+        50
+    )
 
-    // var dialogue = new DialogueBox(
-    //     "ALERT: You are a big hairy monkey",
-    //     500,
-    //     200,
-    //     width / 4,
-    //     height / 4
-    // );
+    container.add(loadingSquare)
+    console.log()
+    scannerButton.update = () => {
 
-    // var customer = new Customer();
-    // console.log("Are you correct?", logic.checkCustomer(customer, 0, "r"));
-    LPR.text = "LPR: " + customer.vehicleLicensePlate;
-    VIN.text = "VIN: " + customer.vin;
-    color.text = "Color: " + customer.vehicleColor;
-    vehicleWeight.text = "Vehicle Weight: " + customer.vehicleWeight;
-    type.text = "Vehicle Type: " + customer.vehicleType;
+        if(loadingSquare.width < scannerButton.width) {
+            loadingSquare.width += 58 * dt;
+            aniTime += dt;
+        }
+        else {
+            container.remove(loadingSquare)
+            scannerButton.update = null;
+            scannerButton.disabled = false;
+            scannerButton.setLabel("Scan Vehicle")
+            LPR.text = "LPR: " + customer.vehicleLicensePlate;
+            VIN.text = "VIN: " + customer.vin;
+            color.text = "Color: " + customer.vehicleColor;
+            vehicleWeight.text = "Vehicle Weight: " + customer.vehicleWeight;
+            type.text = "Vehicle Type: " + customer.vehicleType;
+        }
+
+        console.log(aniTime)
+        if(aniTime >= 1)
+            LPR.text = "LPR: " + customer.vehicleLicensePlate;
+        if(aniTime >= 1.5)
+            VIN.text = "VIN: " + customer.vin;
+        if(aniTime >= 2.3)
+            color.text = "Color: " + customer.vehicleColor;
+        if(aniTime >= 3.5)
+            vehicleWeight.text = "Vehicle Weight: " + customer.vehicleWeight;
+        if(aniTime >= 4.9)
+            type.text = "Vehicle Type: " + customer.vehicleType;
+
+
+    }
+}
+
+function openShutter()
+{
 
 }
-function next() {
+
+function next(LPR, VIN, color, vehicleWeight, type) {
     // Reset Everything
-    //LPR.text = "<NULL>";
+    LPR.text = "LPR: <NULL>";
+    VIN.text = "VIN: <NULL>";
+    color.text = "Color: <NULL>";
+    vehicleWeight.text = "Vehicle Weight: <NULL>";
+    type.text = "Vehicle Type: <NULL>";
     container.remove(customer);
     customer = new Customer();
     container.add(customer)
+    //customer.removeHead()
     //alien.set(customer)
 }
 function update(ms)
