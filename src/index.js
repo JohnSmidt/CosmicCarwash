@@ -159,6 +159,21 @@ function gameScreen()
         }
     )
 
+    var time = new Text(
+        "00:00", 150, 90, {
+            font: "30pt Quantico",
+            fill: "rgb(240, 167, 50)",
+            align: "center"
+        }
+    )
+
+    time.update = function()
+    {
+
+    }
+
+    timerBox.add(time);
+
     timerBox.add(timerLabel);
 
     var overallBox = new UIBox(
@@ -170,8 +185,7 @@ function gameScreen()
     )
     container.add(overallBox);
 
-    var rightLaneButton = new Button(
-        "rightLaneButton",
+    var rightLaneButton = new LaneButton(
         75,
         75,
         115,
@@ -183,27 +197,30 @@ function gameScreen()
             fill: "rgb(240, 167, 50)",
             align: "center",
             textBaseline: "middle"
-        }
+        },
+        'r'
     )
 
-    var leftLaneButton = new Button(
-        "leftLaneButton",
+    var leftLaneButton = new LaneButton(
         75,
         75,
         10,
         (height / 2) - 95,
         '\u25C2',
-        true
+        true,
+        {},
+        'l'
     )
 
-    var middleLaneButton = new Button(
-        "middleLaneButton",
+    var middleLaneButton = new LaneButton(
         75,
         75,
         63,
         (height / 2) - (145),
         '\u25B2',
-        true
+        true,
+        {},
+        'm'
     )
 
     var confirmButton = new Button(
@@ -216,42 +233,71 @@ function gameScreen()
         true
     )
 
+
+    //container.add(buttonConfirmations);
     rightLaneButton.action = function() {
-        rightLaneButton.removeAll();
-        rightSelectionSquare = new Square(
-            rightLaneButton.width + 12,
-            rightLaneButton.height + 12,
-           54.5,124.5,
-            240,167,50,
-            true
-            )
-        laneChoice = 'r'
-        confirmButton.disabled = false;
-        rightLaneButton.add(rightSelectionSquare)
-        var dialogue = new DialogueBox(
-            logic.checkCustomer(customer, 0, "r")?"Correct!!!":"Incorrect...",
-            500,
-            200,
-            width / 4,
-            height / 4
-        );
-        next(LPR, VIN, color, vehicleWeight, type)
+        if(!rightLaneButton.chosen)
+        {
+            rightLaneButton.chosen = true;
+            leftLaneButton.chosen = false;
+            middleLaneButton.chosen = false;
+            laneChoice = rightLaneButton.lane
+            confirmButton.disabled = false;
+        }
+        else
+        {
+            rightLaneButton.chosen = false;
+            confirmButton.disabled = true;
+        }
+
+
+        // var dialogue = new DialogueBox(
+        //     logic.checkCustomer(customer, 0, "r")?"Correct!!!":"Incorrect...",
+        //     500,
+        //     200,
+        //     width / 4,
+        //     height / 4
+        // );
+        // next(LPR, VIN, color, vehicleWeight, type)
     }
 
     middleLaneButton.action = function() {
-        var dialogue = new DialogueBox(
-            logic.checkCustomer(customer, 0, "m")?"Correct!!!":"Incorrect...",
-            500,
-            200,
-            width / 4,
-            height / 4
-        );
-        next(LPR, VIN, color, vehicleWeight, type)
+        if(!middleLaneButton.chosen)
+        {
+            rightLaneButton.chosen = false;
+            leftLaneButton.chosen = false;
+            middleLaneButton.chosen = true;
+            laneChoice = middleLaneButton.lane
+            confirmButton.disabled = false;
+        }
+        else
+        {
+            middleLaneButton.chosen = false;
+            confirmButton.disabled = true;
+        }
+
     }
 
     leftLaneButton.action = function() {
+        if(!leftLaneButton.chosen)
+        {
+            rightLaneButton.chosen = false;
+            leftLaneButton.chosen = true;
+            middleLaneButton.chosen = false;
+            laneChoice = leftLaneButton.lane
+            confirmButton.disabled = false;
+        }
+        else
+        {
+            leftLaneButton.chosen = false;
+            confirmButton.disabled = true;
+        }
+    }
+
+    confirmButton.action = function() {
+        console.log(laneChoice)
         var dialogue = new DialogueBox(
-            logic.checkCustomer(customer, 0, "l")?"Correct!!!":"Incorrect...",
+            logic.checkCustomer(customer, 0, laneChoice)?"Correct!!!":"Incorrect...",
             500,
             200,
             width / 4,
@@ -478,6 +524,7 @@ function next(LPR, VIN, color, vehicleWeight, type) {
     container.remove(customer);
     customer = new Customer();
     container.add(customer)
+
     //customer.removeHead()
     //alien.set(customer)
 }
