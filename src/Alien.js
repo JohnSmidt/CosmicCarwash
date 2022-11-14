@@ -3,12 +3,12 @@ class Alien extends GameObject {
         super();
         this.customer = customer;
         this.img = new Image();
-        this.img.src = 'images/AlienHead1.png'
+        this.img.src = 'images/AlienHead0.png'
         console.log("Alien Is Alive")
 
-        var flag = 1;
+        var flag = 0;
         if(this.customer.hasHat) {
-            flag += 0;
+            flag += 1;
         }
         if(this.customer.hasSunglasses) {
             flag += 2;

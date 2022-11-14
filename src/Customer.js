@@ -49,7 +49,8 @@ class Customer extends GameObject
         this.vehicleLicensePlate = this.randomString(10);
 
         this.head = new Alien(this);
-        this.children = [this.head];
+        this.license = new License(this)
+        this.children = [this.head, this.license];
         this.pos = {x:0,y:0}
         console.log(this)
     }
@@ -63,6 +64,16 @@ class Customer extends GameObject
     {
         var randomNum = Math.floor(Math.random() * (100 - 1) ) + 1
         return randomNum < trueRatio;
+    }
+
+    getLicense()
+    {
+        this.license.reveal();
+    }
+
+    giveLicense()
+    {
+        this.license.unreveal();
     }
 
     randomName()

@@ -4,6 +4,7 @@ class GameObject
     {
         this.updateDisabled = updateDisabled;
         this.children = [];
+        this.renderEnabled = true;
     }
     getClassName()
     {

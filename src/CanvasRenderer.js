@@ -15,34 +15,37 @@ class CanvasRenderer {
         function renderRec (container) {
             // Render the container children
             container.children.forEach(child => {
-                ctx.save();
-                // Draw the leaf node
-                if (child.pos) {
-                    ctx.translate(Math.round(child.pos.x), Math.round(child.pos.y));
-                }
-
-                // Build based on which object it is
-                switch(child.getClassName())
+                if(child.renderEnabled)
                 {
-                    case "Text":
-                        const { font, fill, align, lineWidth, textBaseline } = child.style;
-                        if (font) ctx.font = font;
-                        if (fill) ctx.fillStyle = fill;
-                        if (lineWidth) ctx.lineWidth = lineWidth;
-                        if (align) ctx.textAlign = align;
-                        if (textBaseline) ctx.textBaseline = textBaseline;
-                        if (fill) ctx.fillText(child.text, 0, 0);
-                    break;
-                    default:
-                        child.render(ctx);
-                    break;
-                }
+                    ctx.save();
+                    // Draw the leaf node
+                    if (child.pos) {
+                        ctx.translate(Math.round(child.pos.x), Math.round(child.pos.y));
+                    }
 
-                // Handle the child types
-                if (child.children) {
-                    renderRec(child);
+                    // Build based on which object it is
+                    switch(child.getClassName())
+                    {
+                        case "Text":
+                            const { font, fill, align, lineWidth, textBaseline } = child.style;
+                            if (font) ctx.font = font;
+                            if (fill) ctx.fillStyle = fill;
+                            if (lineWidth) ctx.lineWidth = lineWidth;
+                            if (align) ctx.textAlign = align;
+                            if (textBaseline) ctx.textBaseline = textBaseline;
+                            if (fill) ctx.fillText(child.text, 0, 0);
+                        break;
+                        default:
+                            child.render(ctx);
+                        break;
+                    }
+
+                    // Handle the child types
+                    if (child.children) {
+                        renderRec(child);
+                    }
+                    ctx.restore();
                 }
-                ctx.restore();
             });
 
         }

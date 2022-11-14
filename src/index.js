@@ -1,7 +1,11 @@
 let dt = 0;
 let last = 0;
 let days = 0;
+let timePassed = 0;
+let timePassedTimer = 0;
+let dayTime
 let totalMoney = 0;
+let timeEnabled = false;
 let shutterOpen = false;
 let laneChoice = 'r';
 const width = 1300;
@@ -97,50 +101,9 @@ function title()
     //container.add(uiBox);
 
 }
-function transition()
-{
-    var boxes = [];
-    for(var i = 1; i <= 20; i++)
-    {
-        var box = new UIBox(
-            i * (width / 20),
-            i * (height / 20),
-            width/4 - i * 16.5 ,
-            height/4 - i * 8.75);
-        box.update = function()
-        {
-            if(this.width > width)
-            {
-                this.width = 0;
-                this.pos.y = height / 4;
-                this.pos.x = width / 4;
-                this.height = 0;
-            }
-            else
-            {
-                this.height += 100 * dt;
-                this.pos.y -= 25 * dt;
-                this.width += 186 * dt;
-                this.pos.x -= 46 * dt;
-            }
-        }
-        container.add(box);
-
-    }
-}
 
 function gameScreen()
 {
-
-    //svar rules = new Rules(days);
-    // var sidebar = new UIBox(
-    //     "sidebar",
-    // 325,
-    //    height,
-    //    0,
-    //    0
-    // );
-
     var timerBox = new UIBox(
         "timerBox",
         285,
@@ -160,19 +123,63 @@ function gameScreen()
     )
 
     var time = new Text(
-        "00:00", 150, 90, {
-            font: "30pt Quantico",
+        "00:00", 160, 100, {
+            font: "40pt Quantico",
             fill: "rgb(240, 167, 50)",
             align: "center"
         }
     )
 
+    
+
     time.update = function()
     {
+        let hours = 9;
+        let minutes = "00";
+       
+       if(timeEnabled) 
+       {
+            timePassedTimer += dt
+            if(timePassedTimer < 180)
+            {
+               
+                hours = (parseInt(timePassedTimer / 22.5) + 8) % 12 + 1
 
+                timePassedTimer % 22.5 > 11.25 ? minutes = "30" : minutes = "00"; 
+                
+
+                if(hours < 9)
+                    hours = "0" + hours
+
+                time.text = hours + ":" + minutes;
+
+            }
+            else
+            {
+                if(timePassedTimer % 1 > 0.5)
+                {
+                    time.text = ""
+                }
+                else
+                {
+                    time.text = "05:00";
+                }
+            }
+        }
+        else
+        {
+            if(timePassed % 1 > 0.5)
+            {
+                time.text = ""
+            }
+            else
+            {
+                time.text = hours + ":" + minutes;
+            }
+        }
     }
 
-    timerBox.add(time);
+    container.add(time);
 
     timerBox.add(timerLabel);
 
@@ -294,17 +301,7 @@ function gameScreen()
         }
     }
 
-    confirmButton.action = function() {
-        console.log(laneChoice)
-        var dialogue = new DialogueBox(
-            logic.checkCustomer(customer, 0, laneChoice)?"Correct!!!":"Incorrect...",
-            500,
-            200,
-            width / 4,
-            height / 4
-        );
-        next(LPR, VIN, color, vehicleWeight, type)
-    }
+    
 
     container.add(rightLaneButton);
     container.add(leftLaneButton);
@@ -404,53 +401,146 @@ function gameScreen()
         10
     );
 
-    var license = new UIBox(
-        "license",
-        420,
+    var licenseBox = new UIBox(
+        "licenseBox",
+        490,
         220,
-        (width / 2) - 225,
-        (height / 2) - 123
+        (width / 2) - 262,
+        (height / 2) - 128
     );
 
-    var carInfo = new UIBox(
-        "carInfo",
-        470,
-        220,
-        175,
-        (height / 2) - 123
-    );
+   
 
     //container.add(sidebar);
     container.add(scannerMonitor);
     container.add(scannerButton);
     container.add(customerDisplay);
+    container.add(licenseBox);
     container.add(customer);
     //customerDisplay.add(alien)
-    container.add(license);
-    container.add(carInfo);
+   
+    //container.add(carInfo);
 
     scannerButton.action = function() {
         scan(scannerButton, LPR, VIN, color, vehicleWeight, type);
     }
 
+    let getLicenseButton = new Button(
+        "getLicenseButton",
+        295,
+        50,
+        230,
+        225,
+        "Get License",
+        true,
+    );
+
+   
+
+    let giveLicenseButton = new Button(
+        "giveLicenseButton",
+        295,
+        50,
+        230,
+        300,
+        "Give License Back",
+        true,
+    );
+
+
+    getLicenseButton.action = function() {
+        closeCustomerDisplayButton.disabled = true;
+        getLicenseButton.disabled = true;
+        giveLicenseButton.disabled = false;
+        leftLaneButton.disabled = true;
+        middleLaneButton.disabled = true;
+        rightLaneButton.disabled = true;        
+        customer.getLicense()
+    }
+    giveLicenseButton.action = function() {
+        closeCustomerDisplayButton.disabled = false;
+        getLicenseButton.disabled = false;
+        giveLicenseButton.disabled = true;
+        leftLaneButton.disabled = false;
+        middleLaneButton.disabled = false;
+        rightLaneButton.disabled = false;
+        customer.giveLicense()
+    }
+
+    container.add(getLicenseButton)
+    container.add(giveLicenseButton)
+
     openCustomerDisplayButton.action = function() {
+        let openDist = - ((shutter.height - shutter.pos.y) / 2) + 20
+        shutter.update = function() {
+            if(shutter.pos.y  > openDist)
+            {
+                shutter.pos.y -= 250 * dt;
+            }
+            else {
+                new DialogueBox(
+                   "\"Hello\"",
+                    100,
+                    60,
+                    490,
+                    100,
+                    1
+                );
+                shutter.update = null
+            }
+       
+        }
+        
+        timeEnabled = true;
         shutterOpen = true;
         openCustomerDisplayButton.disabled = true;
         closeCustomerDisplayButton.disabled = false;
         rightLaneButton.disabled = false;
+        getLicenseButton.disabled = false;
         leftLaneButton.disabled = false;
         middleLaneButton.disabled = false;
         scannerButton.disabled = false;
     }
 
     closeCustomerDisplayButton.action = function() {
+        shutter.update = function() {
+            if(this.pos.y  <  this.closedPos.y)
+            {
+                this.pos.y += 250 * dt;
+            }
+            else
+            {
+                this.update = null
+            }
+        }
         shutterOpen = false;
         openCustomerDisplayButton.disabled = false;
         closeCustomerDisplayButton.disabled = true;
+        getLicenseButton.disabled = true;
         rightLaneButton.disabled = true;
         leftLaneButton.disabled = true;
         middleLaneButton.disabled = true;
         scannerButton.disabled = true;
+    }
+
+   
+
+    let shutter = new Shutter(335, 8, 599, 345);
+    container.add(shutter);
+
+    confirmButton.action = function() {
+        var dialogue = new DialogueBox(
+            logic.checkCustomer(customer, 0, laneChoice)?"Correct!!!":"Incorrect...",
+            500,
+            200,
+            width / 4,
+            height / 4
+        );
+        openCustomerDisplayButton.disabled = false;
+        closeCustomerDisplayButton.disabled = true;
+        getLicenseButton.disabled = true;
+        giveLicenseButton.disabled = true;
+        next(LPR, VIN, color, vehicleWeight, type, shutter)
     }
 }
 
@@ -474,7 +564,7 @@ function scan(scannerButton, LPR, VIN, color, vehicleWeight, type) {
     )
 
     container.add(loadingSquare)
-    console.log()
+    
     scannerButton.update = () => {
 
         if(loadingSquare.width < scannerButton.width) {
@@ -489,11 +579,10 @@ function scan(scannerButton, LPR, VIN, color, vehicleWeight, type) {
             LPR.text = "LPR: " + customer.vehicleLicensePlate;
             VIN.text = "VIN: " + customer.vin;
             color.text = "Color: " + customer.vehicleColor;
-            vehicleWeight.text = "Vehicle Weight: " + customer.vehicleWeight;
+            vehicleWeight.text = "Vehicle Weight: " + customer.vehicleWeight + " KG";
             type.text = "Vehicle Type: " + customer.vehicleType;
         }
 
-        console.log(aniTime)
         if(aniTime >= 1)
             LPR.text = "LPR: " + customer.vehicleLicensePlate;
         if(aniTime >= 1.5)
@@ -501,7 +590,7 @@ function scan(scannerButton, LPR, VIN, color, vehicleWeight, type) {
         if(aniTime >= 2.3)
             color.text = "Color: " + customer.vehicleColor;
         if(aniTime >= 3.5)
-            vehicleWeight.text = "Vehicle Weight: " + customer.vehicleWeight;
+            vehicleWeight.text = "Vehicle Weight: " + customer.vehicleWeight + " KG";
         if(aniTime >= 4.9)
             type.text = "Vehicle Type: " + customer.vehicleType;
 
@@ -514,19 +603,33 @@ function openShutter()
 
 }
 
-function next(LPR, VIN, color, vehicleWeight, type) {
-    // Reset Everything
-    LPR.text = "LPR: <NULL>";
-    VIN.text = "VIN: <NULL>";
-    color.text = "Color: <NULL>";
-    vehicleWeight.text = "Vehicle Weight: <NULL>";
-    type.text = "Vehicle Type: <NULL>";
-    container.remove(customer);
-    customer = new Customer();
-    container.add(customer)
+function makeNewCustomer() {
 
-    //customer.removeHead()
-    //alien.set(customer)
+}
+
+function next(LPR, VIN, color, vehicleWeight, type, shutter) {
+    // Reset Everything
+    shutter.update = function() {
+        if(this.pos.y  <  this.closedPos.y)
+        {
+            this.pos.y += 250 * dt;
+        }
+        else
+        {
+            LPR.text = "LPR: <NULL>";
+            VIN.text = "VIN: <NULL>";
+            color.text = "Color: <NULL>";
+            vehicleWeight.text = "Vehicle Weight: <NULL>";
+            type.text = "Vehicle Type: <NULL>";
+            container.remove(customer);
+            container.remove(shutter)
+            customer = new Customer();
+            container.add(customer)
+            container.add(shutter);
+            this.update = null;
+            
+        }
+    }
 }
 function update(ms)
 {
@@ -535,7 +638,7 @@ function update(ms)
     const t = ms / 1000;
     dt = t - last;
     last = t;
-
+    timePassed += dt;
     // Add game logic here
     container.update();
     renderer.render(container);
