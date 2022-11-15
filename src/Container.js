@@ -22,6 +22,15 @@ class Container {
         this.children = [];
     }
 
+    disableAll() {
+        this.children.forEach(child => {
+           if(child.getClassName() === "Button")
+           {
+               child.disabled = true;
+           }
+        });
+    }
+
     update (dt, t) {
         this.children.forEach(child => {
             if (child.update) {

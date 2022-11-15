@@ -14,7 +14,7 @@ class Customer extends GameObject
     // Number
     age;          //
     weight;       //
-    customerHeight; //
+    height; //
     vehicleWeight;
 
     // String
@@ -37,7 +37,7 @@ class Customer extends GameObject
 
         this.age = this.randomNumber(20, 130);
         this.weight = this.randomNumber(75, 250);
-        this.customerHeight = this.randomNumber(121, 244);
+        this.height = this.randomNumber(121, 244);
         this.vehicleWeight = this.randomNumber(1000, 100000);
 
         this.hasBeard = this.randomBool(65);

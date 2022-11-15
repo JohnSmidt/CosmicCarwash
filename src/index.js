@@ -1,10 +1,17 @@
 let dt = 0;
 let last = 0;
-let days = 0;
+let currentDay = 0;
 let timePassed = 0;
 let timePassedTimer = 0;
-let dayTime
+let dayTime = true
 let totalMoney = 0;
+let totalCorrect = 0;
+let totalWrong = 0;
+let dailyCorrect = 0;
+let dailyWrong = 0;
+let dayGain = 0;
+let dayLoss = 0;
+let dailyExpenses = 0;
 let timeEnabled = false;
 let shutterOpen = false;
 let laneChoice = 'r';
@@ -14,12 +21,10 @@ const renderer = new CanvasRenderer(1300, 700);
 const rules = [{"high":{"lane":"l","read":"All customers with a red, green, or blue car MUST go in the left lane. NO EXCEPTIONS.","logic":"customer.vehicleColor=='Red'||customer.vehicleColor=='Green'||customer.vehicleColor=='Blue'||customer.vehicleColor=='#FF0000'||customer.vehicleColor=='#00FF00'||customer.vehicleColor=='#0000FF'"},"medium":{"lane":"r","read":"Any customer vehicles over 50,000 KG in weight will go in the right lane.","logic":"customer.vehicleWeight>50000"},"low":{"lane":"m"}}]
 const container = new Container();
 const mouse = new MouseControls(container);
-var logic = new LogicParser(rules);
-var customer = new Customer();
-//var alien = new Alien();
+let logic = new LogicParser(rules);
+let customer = new Customer(); // This should not be here
 gameScreen();
 //title();
-//transition();
 
 // TODO Gotta figure out a better way to do this
 window.onload= function() {
@@ -130,32 +135,29 @@ function gameScreen()
         }
     )
 
-    
-
     time.update = function()
     {
         let hours = 9;
         let minutes = "00";
-       
-       if(timeEnabled) 
+
+       if(timeEnabled)
        {
             timePassedTimer += dt
             if(timePassedTimer < 180)
             {
-               
                 hours = (parseInt(timePassedTimer / 22.5) + 8) % 12 + 1
+                timePassedTimer % 22.5 > 11.25 ? minutes = "30" : minutes = "00";
 
-                timePassedTimer % 22.5 > 11.25 ? minutes = "30" : minutes = "00"; 
-                
-
-                if(hours < 9)
+                if(hours < 9) {
                     hours = "0" + hours
+                }
 
                 time.text = hours + ":" + minutes;
 
             }
             else
             {
+                dayTime = false;
                 if(timePassedTimer % 1 > 0.5)
                 {
                     time.text = ""
@@ -180,7 +182,6 @@ function gameScreen()
     }
 
     container.add(time);
-
     timerBox.add(timerLabel);
 
     var overallBox = new UIBox(
@@ -191,6 +192,28 @@ function gameScreen()
         75
     )
     container.add(overallBox);
+
+    let dayNumber = new Text("Day: " + currentDay, 30, 90,{
+        font: "12pt Courier New",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let numberRight = new Text("Correct: " + dailyCorrect, 30, 120,{
+        font: "12pt Courier New",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let numberWrong = new Text("Incorrect: " + dailyWrong, 30, 140,{
+        font: "12pt Courier New",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    overallBox.add(dayNumber);
+    overallBox.add(numberRight);
+    overallBox.add(numberWrong);
 
     var rightLaneButton = new LaneButton(
         75,
@@ -240,8 +263,6 @@ function gameScreen()
         true
     )
 
-
-    //container.add(buttonConfirmations);
     rightLaneButton.action = function() {
         if(!rightLaneButton.chosen)
         {
@@ -256,16 +277,6 @@ function gameScreen()
             rightLaneButton.chosen = false;
             confirmButton.disabled = true;
         }
-
-
-        // var dialogue = new DialogueBox(
-        //     logic.checkCustomer(customer, 0, "r")?"Correct!!!":"Incorrect...",
-        //     500,
-        //     200,
-        //     width / 4,
-        //     height / 4
-        // );
-        // next(LPR, VIN, color, vehicleWeight, type)
     }
 
     middleLaneButton.action = function() {
@@ -300,8 +311,6 @@ function gameScreen()
             confirmButton.disabled = true;
         }
     }
-
-    
 
     container.add(rightLaneButton);
     container.add(leftLaneButton);
@@ -409,17 +418,11 @@ function gameScreen()
         (height / 2) - 128
     );
 
-   
-
-    //container.add(sidebar);
     container.add(scannerMonitor);
     container.add(scannerButton);
     container.add(customerDisplay);
     container.add(licenseBox);
     container.add(customer);
-    //customerDisplay.add(alien)
-   
-    //container.add(carInfo);
 
     scannerButton.action = function() {
         scan(scannerButton, LPR, VIN, color, vehicleWeight, type);
@@ -435,7 +438,7 @@ function gameScreen()
         true,
     );
 
-   
+
 
     let giveLicenseButton = new Button(
         "giveLicenseButton",
@@ -454,7 +457,7 @@ function gameScreen()
         giveLicenseButton.disabled = false;
         leftLaneButton.disabled = true;
         middleLaneButton.disabled = true;
-        rightLaneButton.disabled = true;        
+        rightLaneButton.disabled = true;
         customer.getLicense()
     }
     giveLicenseButton.action = function() {
@@ -488,9 +491,9 @@ function gameScreen()
                 );
                 shutter.update = null
             }
-       
+
         }
-        
+
         timeEnabled = true;
         shutterOpen = true;
         openCustomerDisplayButton.disabled = true;
@@ -522,8 +525,6 @@ function gameScreen()
         middleLaneButton.disabled = true;
         scannerButton.disabled = true;
     }
-
-   
 
     let shutter = new Shutter(335, 8, 599, 345);
     container.add(shutter);
@@ -564,7 +565,7 @@ function scan(scannerButton, LPR, VIN, color, vehicleWeight, type) {
     )
 
     container.add(loadingSquare)
-    
+
     scannerButton.update = () => {
 
         if(loadingSquare.width < scannerButton.width) {
@@ -598,38 +599,40 @@ function scan(scannerButton, LPR, VIN, color, vehicleWeight, type) {
     }
 }
 
-function openShutter()
-{
-
-}
-
-function makeNewCustomer() {
-
+function makeNewCustomer(shutter) {
+    container.remove(customer);
+    container.remove(shutter)
+    customer = new Customer();
+    container.add(customer)
+    container.add(shutter);
 }
 
 function next(LPR, VIN, color, vehicleWeight, type, shutter) {
     // Reset Everything
-    shutter.update = function() {
-        if(this.pos.y  <  this.closedPos.y)
-        {
-            this.pos.y += 250 * dt;
-        }
-        else
-        {
+        shutter.update = function() {
+            if(this.pos.y  <  this.closedPos.y)
+            {
+                this.pos.y += 250 * dt;
+            }
+            else
+            {
+                if(dayTime) {
+                    makeNewCustomer(shutter)
+                }
+                else
+                {
+                    // Turn everything off so we cant play anymore
+                    container.disableAll()
+                }
+                this.update = null;
+            }
             LPR.text = "LPR: <NULL>";
             VIN.text = "VIN: <NULL>";
             color.text = "Color: <NULL>";
             vehicleWeight.text = "Vehicle Weight: <NULL>";
             type.text = "Vehicle Type: <NULL>";
-            container.remove(customer);
-            container.remove(shutter)
-            customer = new Customer();
-            container.add(customer)
-            container.add(shutter);
-            this.update = null;
-            
         }
-    }
+
 }
 function update(ms)
 {
