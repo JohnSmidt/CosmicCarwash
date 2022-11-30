@@ -5,28 +5,6 @@
  **************************/
 class Customer extends GameObject
 {
-    // List
-    customerName; //
-    planetOfBirth; //
-    vehicleColor;
-    vehicleType;
-
-    // Number
-    age;          //
-    weight;       //
-    height; //
-    vehicleWeight;
-
-    // String
-    driversLicense;  //
-    vin;
-    vehicleLicensePlate;
-
-    // Bool
-    hasBeard;
-    hasSunglasses;
-    hasHat;
-
     constructor()
     {
         super();
@@ -52,7 +30,6 @@ class Customer extends GameObject
         this.license = new License(this)
         this.children = [this.head, this.license];
         this.pos = {x:0,y:0}
-        console.log(this)
     }
 
     randomNumber(min, max)

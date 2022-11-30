@@ -22,23 +22,7 @@ class CanvasRenderer {
                     if (child.pos) {
                         ctx.translate(Math.round(child.pos.x), Math.round(child.pos.y));
                     }
-
-                    // Build based on which object it is
-                    switch(child.getClassName())
-                    {
-                        case "Text":
-                            const { font, fill, align, lineWidth, textBaseline } = child.style;
-                            if (font) ctx.font = font;
-                            if (fill) ctx.fillStyle = fill;
-                            if (lineWidth) ctx.lineWidth = lineWidth;
-                            if (align) ctx.textAlign = align;
-                            if (textBaseline) ctx.textBaseline = textBaseline;
-                            if (fill) ctx.fillText(child.text, 0, 0);
-                        break;
-                        default:
-                            child.render(ctx);
-                        break;
-                    }
+                    child.render(ctx);
 
                     // Handle the child types
                     if (child.children) {
@@ -47,7 +31,6 @@ class CanvasRenderer {
                     ctx.restore();
                 }
             });
-
         }
         ctx.clearRect(0, 0, this.w, this.h);
         renderRec(container);

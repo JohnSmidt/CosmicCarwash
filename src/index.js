@@ -1,10 +1,11 @@
 let dt = 0;
 let last = 0;
-let currentDay = 0;
+let currentDay = 2;
 let timePassed = 0;
 let timePassedTimer = 0;
 let dayTime = true
-let totalMoney = 0;
+let rulesOpen = false;
+let totalMoney = 50;
 let totalCorrect = 0;
 let totalWrong = 0;
 let dailyCorrect = 0;
@@ -18,10 +19,10 @@ let laneChoice = 'r';
 const width = 1300;
 const height = 700;
 const renderer = new CanvasRenderer(1300, 700);
-const rules = [{"high":{"lane":"l","read":"All customers with a red, green, or blue car MUST go in the left lane. NO EXCEPTIONS.","logic":"customer.vehicleColor=='Red'||customer.vehicleColor=='Green'||customer.vehicleColor=='Blue'||customer.vehicleColor=='#FF0000'||customer.vehicleColor=='#00FF00'||customer.vehicleColor=='#0000FF'"},"medium":{"lane":"r","read":"Any customer vehicles over 50,000 KG in weight will go in the right lane.","logic":"customer.vehicleWeight>50000"},"low":{"lane":"m"}}]
+//const rules = new Rules();
 const container = new Container();
 const mouse = new MouseControls(container);
-let logic = new LogicParser(rules);
+let logic = new LogicParser();
 let customer = new Customer(); // This should not be here
 gameScreen();
 //title();
@@ -38,9 +39,12 @@ window.onload= function() {
             if((x >= child.pos.x && y >= child.pos.y) &&
                 (x <= child.pos.x + child.width / 2 && y <= child.pos.y + child.height / 2))
             {
-                if(child.action && !child.disabled)
+                if(child.action && !child.disabled && !rulesOpen)
                 {
                     child.action();
+                }
+                if(child.closeAction) {
+                    child.closeAction();
                 }
             }
         });
@@ -109,6 +113,8 @@ function title()
 
 function gameScreen()
 {
+    // Setup the day
+    //logic
     var timerBox = new UIBox(
         "timerBox",
         285,
@@ -148,7 +154,7 @@ function gameScreen()
                 hours = (parseInt(timePassedTimer / 22.5) + 8) % 12 + 1
                 timePassedTimer % 22.5 > 11.25 ? minutes = "30" : minutes = "00";
 
-                if(hours < 9) {
+                if(hours < 10) {
                     hours = "0" + hours
                 }
 
@@ -187,13 +193,29 @@ function gameScreen()
     var overallBox = new UIBox(
         "overallBox",
         285,
-        220,
+        110,
         10,
         75
     )
     container.add(overallBox);
 
-    let dayNumber = new Text("Day: " + currentDay, 30, 90,{
+    let ruleButton = new Button(
+        "ruleButton",
+        285,
+        75,
+        10,
+        150,
+        "Policy"
+    )
+
+    ruleButton.action = function() {
+        ruleButton.disabled = true;
+        openRuleBox(ruleButton);
+
+    }
+    container.add(ruleButton);
+
+    let dayNumber = new Text("Day: " + (currentDay + 1), 30, 90,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
@@ -425,7 +447,7 @@ function gameScreen()
     container.add(customer);
 
     scannerButton.action = function() {
-        scan(scannerButton, LPR, VIN, color, vehicleWeight, type);
+        scan(ruleButton, scannerButton, LPR, VIN, color, vehicleWeight, type);
     }
 
     let getLicenseButton = new Button(
@@ -530,35 +552,49 @@ function gameScreen()
     container.add(shutter);
 
     confirmButton.action = function() {
-        var dialogue = new DialogueBox(
-            logic.checkCustomer(customer, 0, laneChoice)?"Correct!!!":"Incorrect...",
-            500,
-            200,
-            width / 4,
-            height / 4
-        );
+        let correctChoice = logic.checkCustomer(customer, currentDay, laneChoice)
+
+        if(correctChoice) {
+            dailyCorrect++;
+            numberRight.text = "Correct: " + dailyCorrect;
+        }
+        else {
+            dailyWrong++;
+            numberWrong.text = "Incorrect: " + dailyWrong;
+        }
+
+        // let dialogue = new DialogueBox(
+        //     logic.checkCustomer(customer, 0, laneChoice)?"Correct!!!":"Incorrect...",
+        //     500,
+        //     200,
+        //     width / 4,
+        //     height / 4
+        // );
         openCustomerDisplayButton.disabled = false;
         closeCustomerDisplayButton.disabled = true;
         getLicenseButton.disabled = true;
         giveLicenseButton.disabled = true;
-        next(LPR, VIN, color, vehicleWeight, type, shutter)
+        next(LPR, VIN, color, vehicleWeight, type, shutter, confirmButton, leftLaneButton, middleLaneButton, rightLaneButton)
     }
+
+    openRuleBox(ruleButton);
 }
 
-function scan(scannerButton, LPR, VIN, color, vehicleWeight, type) {
+function scan(ruleButton, scannerButton, LPR, VIN, color, vehicleWeight, type) {
     LPR.text = "LPR: Scanning...";
     VIN.text = "VIN: Scanning..";
     color.text = "Color: Scanning...";
     vehicleWeight.text = "Vehicle Weight: Scanning...";
     type.text = "Vehicle Type: Scanning...";
     scannerButton.disabled = true;
+    ruleButton.disabled = true;
     scannerButton.setLabel("Scanning...");
     let aniTime = 0;
     let loadingSquare = new Square(
         1,
-        scannerButton.height,
+        10,
         scannerButton.pos.x,
-        scannerButton.pos.y,
+        scannerButton.pos.y + 20,
         240,
         167,
         50
@@ -576,6 +612,7 @@ function scan(scannerButton, LPR, VIN, color, vehicleWeight, type) {
             container.remove(loadingSquare)
             scannerButton.update = null;
             scannerButton.disabled = false;
+            ruleButton.disabled = false;
             scannerButton.setLabel("Scan Vehicle")
             LPR.text = "LPR: " + customer.vehicleLicensePlate;
             VIN.text = "VIN: " + customer.vin;
@@ -607,7 +644,81 @@ function makeNewCustomer(shutter) {
     container.add(shutter);
 }
 
-function next(LPR, VIN, color, vehicleWeight, type, shutter) {
+function openRuleBox(ruleButton) {
+    rulesOpen = true;
+    ruleBox = new UIBox(
+        "ruleBox",
+        800,
+        500,
+        130,
+        50
+    )
+    let ruleBoxTitle = new Text("Current Operational Policy: ", 540, 90,{
+        font: "30pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "center"
+    });
+    let priority1 = new Text("Priority 1: ", 230, 150,{
+        font: "20pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "center"
+    });
+
+    let ruleHigh = new Text(logic.getRules(currentDay).high, 230, 180,{
+        font: "12pt Courier New",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let priority2 = new Text("Priority 2: ", 230, 290,{
+        font: "20pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "center"
+    });
+
+    let ruleMed = new Text(logic.getRules(currentDay).med, 230, 320,{
+        font: "12pt Courier New",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let priority3 = new Text("Priority 3: ", 230, 430,{
+        font: "20pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "center"
+    });
+
+    let ruleLow = new Text(logic.getRules(currentDay).low, 230, 460,{
+        font: "12pt Courier New",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let ruleCloseButton = new Button(
+        "closeRuleButton",
+        150,
+        50,
+        230,
+        245,
+        "Close",
+    )
+    ruleBox.closeAction = function() {
+        container.remove(ruleBox);
+        rulesOpen = false;
+        ruleButton.disabled = false;
+    }
+    ruleBox.add(ruleBoxTitle)
+    ruleBox.add(priority1)
+    ruleBox.add(priority2)
+    ruleBox.add(priority3)
+    ruleBox.add(ruleHigh)
+    ruleBox.add(ruleMed)
+    ruleBox.add(ruleLow)
+    ruleBox.add(ruleCloseButton);
+    container.add(ruleBox);
+}
+
+function next(LPR, VIN, color, vehicleWeight, type, shutter, confirmButton, leftLaneButton, middleLaneButton, rightLaneButton) {
     // Reset Everything
         shutter.update = function() {
             if(this.pos.y  <  this.closedPos.y)
@@ -623,6 +734,7 @@ function next(LPR, VIN, color, vehicleWeight, type, shutter) {
                 {
                     // Turn everything off so we cant play anymore
                     container.disableAll()
+                    //endDay();
                 }
                 this.update = null;
             }
@@ -631,6 +743,13 @@ function next(LPR, VIN, color, vehicleWeight, type, shutter) {
             color.text = "Color: <NULL>";
             vehicleWeight.text = "Vehicle Weight: <NULL>";
             type.text = "Vehicle Type: <NULL>";
+            confirmButton.disabled = true;
+            leftLaneButton.disabled = true;
+            middleLaneButton.disabled = true;
+            rightLaneButton.disabled = true;
+            leftLaneButton.chosen = false;
+            middleLaneButton.chosen = false;
+            rightLaneButton.chosen = false;
         }
 
 }

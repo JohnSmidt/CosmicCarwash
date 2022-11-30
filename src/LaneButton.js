@@ -11,7 +11,6 @@ class LaneButton extends GameObject {
         this.height = h;
         this.pos = { x: x, y: y};
         this.disabled = disabled;
-
         this.children = [];
         this.style = style? style : defaultStyle;
 
