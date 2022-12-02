@@ -1,38 +1,29 @@
 let dt = 0;
 let last = 0;
-let currentDay = 1;
+let currentDay = 0;
 let timePassed = 0;
-let timePassedTimer = 179;
+let timePassedTimer = 0;
 let dayTime = true
 let rulesOpen = false;
-
-// 3000 for every right
-// 1 warning, 6000 after that
-// 15000 starting
-// rent is 25000
-
-let totalMoney = 15000;
+let totalMoney = 0;
 let totalCorrect = 0;
 let totalWrong = 0;
 let dailyCorrect = 0;
 let dailyWrong = 0;
-let dayGain = 0;
-let dayLoss = 0;
 let dailyExpenses = 25000;
 let timeEnabled = false;
 let shutterOpen = false;
-let laneChoice = 'r';
+let laneChoice = 'h';
 const width = 1300;
 const height = 700;
 const renderer = new CanvasRenderer(1300, 700);
-//const rules = new Rules();
 const container = new Container();
 const mouse = new MouseControls(container);
 let logic = new LogicParser();
-let customer = new Customer(); // This should not be here
-//gameScreen();
+let customer = new Customer();
+gameScreen();
 //title();
-endOfDayScreen();
+//endOfDayScreen();
 
 // TODO Gotta figure out a better way to do this
 window.onload= function() {
@@ -120,6 +111,7 @@ function title()
 
 function gameScreen()
 {
+    console.log("Here")
     // Setup the day
     //logic
     var timerBox = new UIBox(
@@ -245,11 +237,11 @@ function gameScreen()
     overallBox.add(numberWrong);
 
     var rightLaneButton = new LaneButton(
-        75,
-        75,
-        115,
-        (height / 2) - 95,
-        '\uf061',
+        285,
+        50,
+        10,
+        (height / 2) - 145,
+        'Cosmic Wash',
         true,
         {
             font: "60pt fontawesome",
@@ -257,26 +249,26 @@ function gameScreen()
             align: "center",
             textBaseline: "middle"
         },
-        'r'
+        'h'
     )
 
     var leftLaneButton = new LaneButton(
-        75,
-        75,
+        285,
+        50,
         10,
-        (height / 2) - 95,
-        '\u25C2',
+        (height / 2) - 75,
+        'Basic Wash',
         true,
         {},
         'l'
     )
 
     var middleLaneButton = new LaneButton(
-        75,
-        75,
-        63,
-        (height / 2) - (145),
-        '\u25B2',
+        285,
+        50,
+        10,
+        (height / 2) - 110,
+        'Plus Wash',
         true,
         {},
         'm'
@@ -767,6 +759,41 @@ function endDayTransition()
     endOfDayScreen();
 }
 
+function nextDayTransition()
+{
+    console.log("Here2")
+    container.removeAll();
+    currentDay++;
+    timePassed = 0;
+    timePassedTimer = 0;
+    dayTime = true;
+    timeEnabled = false;
+    totalMoney = totalMoney + ((dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses)
+    totalCorrect += dailyCorrect;
+    dailyCorrect = 0;
+
+    totalWrong += dailyWrong;
+    dailyWrong = 0;
+    gameScreen();
+}
+
+function gameOverTransition()
+{
+    container.removeAll();
+    //currentDay++;
+    totalMoney = totalMoney + ((dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses)
+    totalCorrect += dailyCorrect;
+    dailyCorrect = 0;
+
+    totalWrong += dailyWrong;
+    dailyWrong = 0;
+    gameOverScreen();
+}
+
+function gameOverScreen() {
+
+}
+
 function endOfDayScreen()
 {
     let scoreBox = new UIBox("scoreBox", 1075, 500, 50, 50)
@@ -850,6 +877,30 @@ function endOfDayScreen()
         align: "left"
     });
 
+    let nextDayButton = new Button(
+        "nextDayButton",
+        150,
+        50,
+        480,
+        265,
+        "Continue",
+    )
+    nextDayButton.action = function() {
+        nextDayTransition();
+    }
+
+    let gameOverButton = new Button(
+        "nextDayButton",
+        150,
+        50,
+        480,
+        265,
+        "Continue",
+    )
+    gameOverButton.action = function() {
+        gameOverTransition();
+    }
+
     scoreBox.add(scoreTitle);
     scoreBox.add(currentMoneyText);
     scoreBox.add(numberCorrectText);
@@ -872,7 +923,7 @@ function endOfDayScreen()
 
         if(scoreTime > 1.5)
         {
-            currentMoney.text = totalMoney;
+            currentMoney.text = "$" + totalMoney;
         }
         if(scoreTime > 2.5)
         {
@@ -880,24 +931,35 @@ function endOfDayScreen()
         }
         if(scoreTime > 3.5)
         {
-            numberIncorrect.text = dailyWrong + " (-$" + (dailyWrong * 6000) + ")";
+            numberIncorrect.text = dailyWrong + " (-$" + (Math.abs(Math.trunc(dailyWrong - 0.1)) * 6000) + ")";
         }
         if(scoreTime > 4.5)
         {
-            expenses.text = "-25000";
+            expenses.text = "$-" + dailyExpenses;
         }
         if(scoreTime > 5.5)
         {
-            netMoney.text = (dailyCorrect * 3000) - (dailyWrong * 6000) - dailyExpenses;
+            netMoney.text = "$" + ((dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses);
         }
         if(scoreTime > 7.5)
         {
-            scoreTotalMoney.text = totalMoney + (dailyCorrect * 3000) - (dailyWrong * 6000) - dailyExpenses;
+            scoreTotalMoney.text = "$" + (totalMoney + (dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses);
         }
         if(scoreTime > 9.5)
         {
-            //currentMoney.text = "6";
+            if((totalMoney + (dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses) >= 0)
+            {
+                container.add(nextDayButton);
+            }
+            else
+            {
+                //container.add(gameOverButton);
+            }
+
+            scoreBox.update = "";
+
         }
+        console.log(dailyWrong)
     }
 
 
