@@ -10,7 +10,7 @@ let totalCorrect = 0;
 let totalWrong = 0;
 let dailyCorrect = 0;
 let dailyWrong = 0;
-let dailyExpenses = 25000;
+const dailyExpenses = 25;
 let timeEnabled = false;
 let shutterOpen = false;
 let laneChoice = 'h';
@@ -18,7 +18,6 @@ const width = 1300;
 const height = 700;
 const renderer = new CanvasRenderer(1300, 700);
 const container = new Container();
-const mouse = new MouseControls(container);
 let logic = new LogicParser();
 let customer = new Customer();
 gameScreen();
@@ -47,10 +46,6 @@ window.onload= function() {
             }
         });
     })
-}
-
-function rulesDisplay(day) {
-    // Three rules will be set for each
 }
 
 function title()
@@ -87,7 +82,6 @@ function title()
     };
 
     // Load the start button
-
     const startGameButton = new Button(
         250,
         75,
@@ -96,16 +90,10 @@ function title()
         "Start Game"
 
     );
-    startGameButton.update = function()
-    {
-
-
-    }
 
     // Add to the scene
     container.add(title);
     container.add(startGameButton);
-    //container.add(uiBox);
 
 }
 
@@ -314,7 +302,6 @@ function gameScreen()
             middleLaneButton.chosen = false;
             confirmButton.disabled = true;
         }
-
     }
 
     leftLaneButton.action = function() {
@@ -575,7 +562,6 @@ function gameScreen()
         giveLicenseButton.disabled = true;
         next(LPR, VIN, color, vehicleWeight, type, shutter, confirmButton, leftLaneButton, middleLaneButton, rightLaneButton)
     }
-
     openRuleBox(ruleButton);
 }
 
@@ -630,8 +616,6 @@ function scan(ruleButton, scannerButton, LPR, VIN, color, vehicleWeight, type) {
             vehicleWeight.text = "Vehicle Weight: " + customer.vehicleWeight + " KG";
         if(aniTime >= 4.9)
             type.text = "Vehicle Type: " + customer.vehicleType;
-
-
     }
 }
 
@@ -731,7 +715,6 @@ function next(LPR, VIN, color, vehicleWeight, type, shutter, confirmButton, left
                 }
                 else
                 {
-                    // Turn everything off so we cant play anymore
                     container.disableAll()
                     endDayTransition();
                 }
@@ -761,17 +744,15 @@ function endDayTransition()
 
 function nextDayTransition()
 {
-    console.log("Here2")
     container.removeAll();
     currentDay++;
     timePassed = 0;
     timePassedTimer = 0;
     dayTime = true;
     timeEnabled = false;
-    totalMoney = totalMoney + ((dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses)
+    totalMoney = totalMoney + ((dailyCorrect * 3) - (Math.trunc(dailyWrong - 0.1) * 6) - dailyExpenses)
     totalCorrect += dailyCorrect;
     dailyCorrect = 0;
-
     totalWrong += dailyWrong;
     dailyWrong = 0;
     gameScreen();
@@ -780,11 +761,9 @@ function nextDayTransition()
 function gameOverTransition()
 {
     container.removeAll();
-    //currentDay++;
-    totalMoney = totalMoney + ((dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses)
+    totalMoney = totalMoney + ((dailyCorrect * 3) - (Math.trunc(dailyWrong - 0.1) * 6) - dailyExpenses)
     totalCorrect += dailyCorrect;
     dailyCorrect = 0;
-
     totalWrong += dailyWrong;
     dailyWrong = 0;
     gameOverScreen();
@@ -811,19 +790,7 @@ function endOfDayScreen()
         align: "left"
     });
 
-    let currentMoney = new Text("", 325, 170,{
-        font: "20pt Quantico",
-        fill: "rgb(240, 167, 50)",
-        align: "left"
-    });
-
     let numberCorrectText = new Text("Number Correct: ", 100, 240,{
-        font: "20pt Quantico",
-        fill: "rgb(240, 167, 50)",
-        align: "left"
-    });
-
-    let numberCorrect = new Text("", 340, 240,{
         font: "20pt Quantico",
         fill: "rgb(240, 167, 50)",
         align: "left"
@@ -835,19 +802,7 @@ function endOfDayScreen()
         align: "left"
     });
 
-    let numberIncorrect = new Text("", 360, 310,{
-        font: "20pt Quantico",
-        fill: "rgb(240, 167, 50)",
-        align: "left"
-    });
-
     let expensesText = new Text("Expenses: ", 100, 380,{
-        font: "20pt Quantico",
-        fill: "rgb(240, 167, 50)",
-        align: "left"
-    });
-
-    let expenses = new Text("", 250, 380,{
         font: "20pt Quantico",
         fill: "rgb(240, 167, 50)",
         align: "left"
@@ -859,19 +814,7 @@ function endOfDayScreen()
         align: "left"
     });
 
-    let netMoney = new Text("", 270, 450,{
-        font: "20pt Quantico",
-        fill: "rgb(240, 167, 50)",
-        align: "left"
-    });
-
     let scoreTotalMoneyText = new Text("Total Money Remaining: ", 100, 520,{
-        font: "20pt Quantico",
-        fill: "rgb(240, 167, 50)",
-        align: "left"
-    });
-
-    let scoreTotalMoney = new Text("", 440, 520,{
         font: "20pt Quantico",
         fill: "rgb(240, 167, 50)",
         align: "left"
@@ -909,13 +852,6 @@ function endOfDayScreen()
     scoreBox.add(netMoneyText);
     scoreBox.add(scoreTotalMoneyText);
 
-    scoreBox.add(currentMoney);
-    scoreBox.add(numberCorrect);
-    scoreBox.add(expenses);
-    scoreBox.add(numberIncorrect);
-    scoreBox.add(netMoney);
-    scoreBox.add(scoreTotalMoney);
-
     let scoreTime = 0;
     scoreBox.update = function()
     {
@@ -923,46 +859,48 @@ function endOfDayScreen()
 
         if(scoreTime > 1.5)
         {
-            currentMoney.text = "$" + totalMoney;
+            currentMoneyText.text = "Current Money: $" + totalMoney;
         }
         if(scoreTime > 2.5)
         {
-            numberCorrect.text = dailyCorrect + " (+$" + (dailyCorrect * 3000) + ")";
+            numberCorrectText.text = "Number Correct: " + dailyCorrect + " (+$" + (dailyCorrect * 3) + ")";
         }
         if(scoreTime > 3.5)
         {
-            numberIncorrect.text = dailyWrong + " (-$" + (Math.abs(Math.trunc(dailyWrong - 0.1)) * 6000) + ")";
+            numberIncorrectText.text = "Number Incorrect: " + dailyWrong + " (-$" + (Math.abs(Math.trunc(dailyWrong - 0.1)) * 6) + ")";
         }
         if(scoreTime > 4.5)
         {
-            expenses.text = "$-" + dailyExpenses;
+            expensesText.text = "Daily Expenses: -$" + dailyExpenses;
         }
         if(scoreTime > 5.5)
         {
-            netMoney.text = "$" + ((dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses);
+            if(((dailyCorrect * 3) - (Math.trunc(dailyWrong - 0.1) * 6) - dailyExpenses) < 0)
+            {
+                netMoneyText.text = "Net Money: -$" + ((dailyCorrect * 3) - (Math.trunc(dailyWrong - 0.1) * 6) - dailyExpenses);
+            }
+            else
+            {
+                netMoneyText.text = "Net Money: $" + ((dailyCorrect * 3) - (Math.trunc(dailyWrong - 0.1) * 6) - dailyExpenses);
+            }
         }
         if(scoreTime > 7.5)
         {
-            scoreTotalMoney.text = "$" + (totalMoney + (dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses);
+            scoreTotalMoneyText.text = "Total Money Remaining: $" + (totalMoney + (dailyCorrect * 3) - (Math.trunc(dailyWrong - 0.1) * 6) - dailyExpenses);
         }
         if(scoreTime > 9.5)
         {
-            if((totalMoney + (dailyCorrect * 3000) - (Math.trunc(dailyWrong - 0.1) * 6000) - dailyExpenses) >= 0)
+            if((totalMoney + (dailyCorrect * 3) - (Math.trunc(dailyWrong - 0.1) * 6) - dailyExpenses) >= 0)
             {
                 container.add(nextDayButton);
             }
             else
             {
-                //container.add(gameOverButton);
+                container.add(gameOverButton);
             }
-
             scoreBox.update = "";
-
         }
-        console.log(dailyWrong)
     }
-
-
 }
 
 function update(ms)

@@ -4,24 +4,24 @@ class Rules {
             {
                 "high": {
                     "lane":"h",
-                    "read":"All customers with a red, green, or blue car MUST receive the . \nNO EXCEPTIONS.",
+                    "read":"All customers with a red, green, or blue car will receive \nthe Cosmic Wash. NO EXCEPTIONS.",
                     "logic":"customer.vehicleColor=='Red'||customer.vehicleColor=='Green'||customer.vehicleColor=='Blue'||customer.vehicleColor=='#FF0000'||customer.vehicleColor=='#00FF00'||customer.vehicleColor=='#0000FF'"
                 },
                 "medium": {
                     "lane":"m",
-                    "read":"Any customer vehicles over 50,000 KG in weight will go \nin the right lane.",
+                    "read":"Any customer vehicles over 50,000 KG in weight will receive \nthe plus wash.",
                     "logic":"customer.vehicleWeight>50000"
                 },
                 "low": {
                     "lane":"l",
-                    "read":"All remaining customers will go in the middle lane"
+                    "read":"All remaining customers will receive the basic wash"
                 }
             },
             {
                 "high": {
                     "lane":"h",
                     "read":"All customers part of the New Galaxy Order faction \nwill go in the middle lane. NO EXCEPTIONS.",
-                    "logic":"customer.vehicleColor=='Red'||customer.vehicleColor=='#FF0000'||customer.vehicleColor=='Orange'||customer.vehicleColor=='Salmon'||customer.vehicleColor=='Magenta'||customer.vehicleColor=='Pink'||customer.vehicleColor=='Coral'"
+                    "logic":"customer.vehicleColor=='Red'||customer.vehicleColor=='#FF0000'|| customer.vehicleColor=='#FF00FF'||customer.vehicleColor=='Orange'||customer.vehicleColor=='Salmon'||customer.vehicleColor=='Magenta'||customer.vehicleColor=='Pink'||customer.vehicleColor=='Coral'"
                 },
                 "medium": {
                     "lane":"m",
