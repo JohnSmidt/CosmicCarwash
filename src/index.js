@@ -1,8 +1,8 @@
 let dt = 0;
 let last = 0;
-let currentDay = 0;
+let currentDay = 1;
 let timePassed = 0;
-let timePassedTimer = 0;
+let timePassedTimer = 179;
 let dayTime = true
 let rulesOpen = false;
 let totalMoney = 0;
@@ -769,8 +769,72 @@ function gameOverTransition()
     gameOverScreen();
 }
 
-function gameOverScreen() {
+function newGameTransition() {
+    container.removeAll();
+    currentDay = 0;
+    timePassed = 0;
+    timePassedTimer = 0;
+    dayTime = true
+    rulesOpen = false;
+    totalMoney = 0;
+    totalCorrect = 0;
+    totalWrong = 0;
+    dailyCorrect = 0;
+    dailyWrong = 0;
+    title();
+}
 
+function gameOverScreen() {
+    let gameOverBox = new UIBox("gameOverBox", 1075, 500, 50, 50)
+    container.add(gameOverBox);
+
+    let gameOverTitle = new Text("GAME OVER", 570, 100,{
+        font: "30pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "center"
+    });
+
+    let currentMoneyText = new Text("Current Money: ", 100, 170,{
+        font: "20pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let numberCorrectText = new Text("Total Correct: ", 100, 240,{
+        font: "20pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let numberIncorrectText = new Text("Total Incorrect: ", 100, 310,{
+        font: "20pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let expensesText = new Text("Furthest day:  ", 100, 380,{
+        font: "20pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let titleButton = new Button(
+        "nextDayButton",
+        150,
+        50,
+        480,
+        265,
+        "Go to Title",
+    )
+    titleButton.action = function() {
+        newGameTransition();
+    }
+
+    gameOverBox.add(gameOverTitle);
+    gameOverBox.add(currentMoneyText);
+    gameOverBox.add(numberCorrectText);
+    gameOverBox.add(expensesText);
+    gameOverBox.add(numberIncorrectText);
 }
 
 function endOfDayScreen()
@@ -802,7 +866,7 @@ function endOfDayScreen()
         align: "left"
     });
 
-    let expensesText = new Text("Expenses: ", 100, 380,{
+    let expensesText = new Text("Daily Expenses: ", 100, 380,{
         font: "20pt Quantico",
         fill: "rgb(240, 167, 50)",
         align: "left"

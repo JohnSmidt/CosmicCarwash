@@ -74,8 +74,34 @@ class Customer extends GameObject
 
     randomPlanet()
     {
-        var planets = ["Placeholder", "Placeholder"]
-        return this.randomFromList(planets);
+        var cities = [
+            "Clamdale",
+            "Wossa",
+            "Elsing",
+            "New Ventura",
+            "Soothmont",
+            "Vyr",
+            "Darbus",
+            "Trula",
+            "Flagos",
+            "Breem",
+            "Roc 5",
+            "Carrion",
+            "Laruto",
+            "Ambur",
+            "Richstein",
+            "Lent",
+            "Kentridge",
+            "Cardin",
+            "Cidoville",
+            "Agrigonia",
+            "Magus",
+            "Tirith",
+            "Mirth",
+            "Plohgow",
+            "Ramford"
+        ]
+        return this.randomFromList(cities);
     }
 
     randomColor()
