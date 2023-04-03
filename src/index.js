@@ -1,8 +1,8 @@
 let dt = 0;
 let last = 0;
-let currentDay = 1;
+let currentDay = 0;
 let timePassed = 0;
-let timePassedTimer = 179;
+let timePassedTimer = 0;
 let dayTime = true
 let rulesOpen = false;
 let totalMoney = 0;
@@ -20,8 +20,8 @@ const renderer = new CanvasRenderer(1300, 700);
 const container = new Container();
 let logic = new LogicParser();
 let customer = new Customer();
-gameScreen();
-//title();
+//gameScreen();
+title();
 //endOfDayScreen();
 
 // TODO Gotta figure out a better way to do this
@@ -538,9 +538,108 @@ function gameScreen()
     container.add(shutter);
 
     confirmButton.action = function() {
-        let correctChoice = logic.checkCustomer(customer, currentDay, laneChoice)
+        let response = logic.checkCustomer(customer, currentDay, laneChoice)
+        shutter.update = function() {
+            if(this.pos.y  <  this.closedPos.y)
+            {
+                this.pos.y += 250 * dt;
+            }
+            else
+            {
+                if(dayTime) {
+                    makeNewCustomer(shutter)
+                }
 
-        if(correctChoice) {
+                this.update = null;
+            }
+            LPR.text = "LPR: <NULL>";
+            VIN.text = "VIN: <NULL>";
+            color.text = "Color: <NULL>";
+            vehicleWeight.text = "Vehicle Weight: <NULL>";
+            type.text = "Vehicle Type: <NULL>";
+            confirmButton.disabled = true;
+            leftLaneButton.disabled = true;
+            middleLaneButton.disabled = true;
+            rightLaneButton.disabled = true;
+            leftLaneButton.chosen = false;
+            middleLaneButton.chosen = false;
+            rightLaneButton.chosen = false;
+        }
+        let aniTime = 0;
+        scannerButton.disabled = true;
+        ruleButton.disabled = true;
+        openCustomerDisplayButton.disabled = true;
+        closeCustomerDisplayButton.disabled = true;
+        getLicenseButton.disabled = true;
+        giveLicenseButton.disabled = true;
+
+        var resultsBox = new UIBox(
+            "overallBox",
+            285,
+            110,
+            10,
+            75
+        )
+        let checkText = new Text("CHECKING..", 155, 140,{
+            font: "20pt Quantico",
+            fill: "rgb(240, 167, 50)",
+            align: "center"
+        });
+        resultsBox.add(checkText);
+        container.add(resultsBox);
+
+        resultsBox.update = () => {
+            if(aniTime > 2) {
+                resultsBox.removeAll();
+                let responseTitleText = new Text("Testing", 155, 120,{
+                    font: "20pt Quantico",
+                    fill: "rgb(240, 167, 50)",
+                    align: "center"
+                });
+                let responseBodyText = new Text("This is some test text to format.", 155, 145,{
+                    font: "12pt Courier New",
+                    fill: "rgb(240, 167, 50)",
+                    align: "center"
+                });
+
+                resultsBox.add(responseTitleText);
+                resultsBox.add(responseBodyText);
+
+                if(response.passed) {
+                    responseTitleText.text = "Success!";
+                    responseBodyText.text = response.message;
+                }
+                else {
+                    responseTitleText.text = "ERROR!!";
+                    responseBodyText.text = response.message;
+                }
+                if(dayTime)
+                {
+
+                    ruleButton.disabled = false;
+                    openCustomerDisplayButton.disabled = false;
+                }
+
+
+
+
+
+
+                //next(LPR, VIN, color, vehicleWeight, type, shutter, confirmButton, leftLaneButton, middleLaneButton, rightLaneButton)
+            }
+            if(aniTime > 7) {
+                container.remove(resultsBox);
+                if(!dayTime)
+                {
+                    container.disableAll()
+                    endDayTransition();
+                }
+                resultsBox.update = null;
+            }
+            aniTime += dt;
+            console.log(aniTime);
+        }
+        if(response.passed) {
             dailyCorrect++;
             numberRight.text = "Correct: " + dailyCorrect;
         }
@@ -548,19 +647,6 @@ function gameScreen()
             dailyWrong++;
             numberWrong.text = "Incorrect: " + dailyWrong;
         }
-
-        // let dialogue = new DialogueBox(
-        //     logic.checkCustomer(customer, 0, laneChoice)?"Correct!!!":"Incorrect...",
-        //     500,
-        //     200,
-        //     width / 4,
-        //     height / 4
-        // );
-        openCustomerDisplayButton.disabled = false;
-        closeCustomerDisplayButton.disabled = true;
-        getLicenseButton.disabled = true;
-        giveLicenseButton.disabled = true;
-        next(LPR, VIN, color, vehicleWeight, type, shutter, confirmButton, leftLaneButton, middleLaneButton, rightLaneButton)
     }
     openRuleBox(ruleButton);
 }
@@ -631,47 +717,60 @@ function openRuleBox(ruleButton) {
     rulesOpen = true;
     ruleBox = new UIBox(
         "ruleBox",
-        800,
-        500,
-        130,
-        50
+        1080,
+        675,
+        50,
+        5
     )
-    let ruleBoxTitle = new Text("Current Operational Policy: ", 540, 90,{
-        font: "30pt Quantico",
+    let dayDescriptionTitle = new Text("Briefing:", 70, 60,{
+        font: "25pt Quantico",
         fill: "rgb(240, 167, 50)",
-        align: "center"
-    });
-    let priority1 = new Text("Priority 1: ", 230, 150,{
-        font: "20pt Quantico",
-        fill: "rgb(240, 167, 50)",
-        align: "center"
+        align: "left"
     });
 
-    let ruleHigh = new Text(logic.getRules(currentDay).high, 230, 180,{
+    let dayDescription = new Text(logic.getRules(currentDay).description, 140, 90,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
     });
 
-    let priority2 = new Text("Priority 2: ", 230, 290,{
+    let ruleBoxTitle = new Text("Current Operational Policy: ", 295, 225,{
+        font: "25pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "center"
+    });
+
+    let priority1 = new Text("Priority 1: ", 140, 275,{
         font: "20pt Quantico",
         fill: "rgb(240, 167, 50)",
         align: "center"
     });
 
-    let ruleMed = new Text(logic.getRules(currentDay).med, 230, 320,{
+    let ruleHigh = new Text(logic.getRules(currentDay).high, 140, 305,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
     });
 
-    let priority3 = new Text("Priority 3: ", 230, 430,{
+    let priority2 = new Text("Priority 2: ", 140, 415,{
         font: "20pt Quantico",
         fill: "rgb(240, 167, 50)",
         align: "center"
     });
 
-    let ruleLow = new Text(logic.getRules(currentDay).low, 230, 460,{
+    let ruleMed = new Text(logic.getRules(currentDay).med, 140, 445,{
+        font: "12pt Courier New",
+        fill: "rgb(240, 167, 50)",
+        align: "left"
+    });
+
+    let priority3 = new Text("Priority 3: ", 140, 555,{
+        font: "20pt Quantico",
+        fill: "rgb(240, 167, 50)",
+        align: "center"
+    });
+
+    let ruleLow = new Text(logic.getRules(currentDay).low, 140, 585,{
         font: "12pt Courier New",
         fill: "rgb(240, 167, 50)",
         align: "left"
@@ -681,8 +780,8 @@ function openRuleBox(ruleButton) {
         "closeRuleButton",
         150,
         50,
-        230,
-        245,
+        480,
+        310,
         "Close",
     )
     ruleBox.closeAction = function() {
@@ -690,6 +789,8 @@ function openRuleBox(ruleButton) {
         rulesOpen = false;
         ruleButton.disabled = false;
     }
+    ruleBox.add(dayDescriptionTitle)
+    ruleBox.add(dayDescription)
     ruleBox.add(ruleBoxTitle)
     ruleBox.add(priority1)
     ruleBox.add(priority2)
@@ -733,7 +834,6 @@ function next(LPR, VIN, color, vehicleWeight, type, shutter, confirmButton, left
             middleLaneButton.chosen = false;
             rightLaneButton.chosen = false;
         }
-
 }
 
 function endDayTransition()

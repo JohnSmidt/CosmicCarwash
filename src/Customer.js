@@ -56,7 +56,7 @@ class Customer extends GameObject
     randomName()
     {
         var names = [
-            "Steve", "Dave", "Allan",
+            "Steve", "Steve", "Steve", "Dave", "Allan",
             "Vinny", "Zed", "Zim",
             "Xander", "Frank", "Gorbulon",
             "Snelthor", "Meebz", "Ria",
@@ -66,7 +66,7 @@ class Customer extends GameObject
             "Kamtram", "Guvy", "Snarth",
             "Thader", "Ringo", "Drax",
             "Bo", "Agador", "J'Duun",
-            "Koob",
+            "Koob", "Gnorts", "Duende",
             "Zax", "Kreebo", "Fenix"
         ]
         return this.randomFromList(names);

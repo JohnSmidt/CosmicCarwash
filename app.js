@@ -15,6 +15,6 @@ app.get('/', (req, res) => {
     res.sendFile('index.html');
 });
 
-app.listen(3000, () =>
-    console.log(`Cosmic Carwash listening on port 3000!`),
+app.listen(8080, () =>
+    console.log(`Cosmic Carwash listening on port 8080!`),
 );
